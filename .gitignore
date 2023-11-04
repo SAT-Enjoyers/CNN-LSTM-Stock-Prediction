@@ -1,4 +1,4 @@
-scraped_data/output_data.csv
+scraping/SP_data_full.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
