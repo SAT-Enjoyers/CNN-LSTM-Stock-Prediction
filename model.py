@@ -17,53 +17,55 @@ def main():
     
     print('Loading...')
     fileName = np.load('data_prep_out.npy')
+    all_labels = []
+    fileName = np.reshape(fileName,(58750,10,5))
+    # create labels
+    for i in range(0,len(fileName)-1):
+        if fileName[i][1][0] < fileName[i+1][1][-1]:
+            all_labels.append(1)
+        else:
+            all_labels.append(0)
+    for i in range(len(fileName),len(fileName)-1):
+        if fileName[i][1][-1] < fileName[i+1][1][-1]:
+            all_labels.append(1)
+        else:
+            all_labels.append(0)
+    all_labels.append(0)
+    test_labels = all_labels[47000-1:]
+    train_labels = all_labels[:-11751]
+    np.random.seed(0)  
+    # np.random.shuffle(fileName)
     labels = np.load('labels.npy')
     print(np.shape(fileName))
     file_chuncks = np.split(fileName,5,axis=1)
     train_series = []
-    train_labels = []
-    label_chuncks = np.split(labels,5)
     for i in range(4):
         train_series.append(file_chuncks[i])
-        train_labels.append(label_chuncks[i])
     test_series = file_chuncks[-1]
-    test_labels = label_chuncks[-1]
+    train_series = np.reshape(np.array(train_series),(47000,10,5))
+    train_labels.append(0)
     print('Train...')
-    train_series = np.reshape(np.array(train_series),(47000,5,10))
     y_train = np.array(train_labels)
     y_train = y_train.reshape(47000)
-    test_series = np.reshape(test_series,(11750,5,10))
-    test_labels = []
-    for i in range(len(test_series)-1):
-        if i%1250 == 0:
-            test_labels.append(0)
-            continue
-        if test_series[i][1][-1] < test_series[i+1][1][-1]:
-            test_labels.append(1)
-        else:
-            test_labels.append(0)
-    test_labels.append(0)
+    test_series = np.reshape(test_series,(11750,10,5))
     test_labels = np.array(test_labels)
     y_test = np.array(test_labels)
-    print(np.shape(y_train),np.shape(train_series))
     model.fit(train_series, y_train,
             batch_size=64,
             epochs=10,)
     score,acc = model.evaluate(test_series,y_test)
     print(score,acc)
-    
     model.save("model.keras")
     
 def cnn(model):
     sides = 5 # Size of sides
     channels = 1 # Grayscale
     timeStep = 10 # Timestep
-    input_shape = (sides, timeStep, channels)
+    input_shape = (timeStep, sides, channels)
     
     model.add(TimeDistributed(Conv1D(filters=32, kernel_size=1, activation='tanh'), input_shape =input_shape))
     model.add(TimeDistributed(MaxPooling1D(pool_size=1)))
     model.add(TimeDistributed(Flatten()))
-    
     # From here onwards, just CNN
 #Shape should be (batch_size, timesteps, features)
 #batch_size = number of samples in each batch
@@ -75,9 +77,10 @@ def lstm(model):
     model.add(LSTM(64))
     model.add(Dropout(.5))
     model.add(Dense(1,activation='sigmoid'))
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
 
     model.compile(loss='binary_crossentropy',
-                optimizer='adam',
+                optimizer=optimizer,
                 metrics=['accuracy'])
     
     #score, acc = model.evaluate(x_test, y_test, batch_size=64)
