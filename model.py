@@ -18,10 +18,6 @@ def cnn(images, model):
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
     # From here onwards, just CNN
-    
-    
-def lstm():
-    pass
 
 def lstm(inputs, model):
     data = np.random.random((1000, 28, 1))
