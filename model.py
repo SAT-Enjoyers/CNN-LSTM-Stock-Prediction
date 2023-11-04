@@ -4,3 +4,4 @@ from tensorflow.python.keras.layers import Input, Dense
 
 def lstm():
     pass
+
