@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 import matplotlib.pyplot as plt
 from pyts.image import RecurrencePlot
+from mpl_toolkits.axes_grid1 import ImageGrid
 
 def add_label(df):
     new_row = np.zeros(len(df))
@@ -87,20 +88,20 @@ for time_series in all_time_series:
     final_recurrence_plots += RecurrencePlot(threshold='point', percentage=20).fit_transform(time_series)
 final_recurrence_plots = final_recurrence_plots/5
 
-# Plot the 50 recurrence plots
-# fig = plt.figure(figsize=(10, 5))
-# Plot the 50 recurrence plots
-# fig = plt.figure(figsize=(10, 5))
+#Plot the 50 recurrence plots
+fig = plt.figure(figsize=(10, 5))
+#Plot the 50 recurrence plots
+fig = plt.figure(figsize=(10, 5))
 
-# grid = ImageGrid(fig, 111, nrows_ncols=(5, 10), axes_pad=0.1, share_all=True)
-# for i, ax in enumerate(grid):
-#     ax.imshow(X_rp[i], origin='lower')
-# grid[0].get_yaxis().set_ticks([])
-# grid[0].get_xaxis().set_ticks([])
+grid = ImageGrid(fig, 111, nrows_ncols=(5, 10), axes_pad=0.1, share_all=True)
+for i, ax in enumerate(grid):
+    ax.imshow(final_recurrence_plots[i], origin='lower')
+grid[0].get_yaxis().set_ticks([])
+grid[0].get_xaxis().set_ticks([])
 
-# fig.suptitle(
-#     "Recurrence plots for the 50 time series in the 'GunPoint' dataset",
-#     y=0.92
-# )
+fig.suptitle(
+    "Recurrence plots for the 50 time series in the 'GunPoint' dataset",
+    y=0.92
+)
 
-# plt.show()
+plt.show()
