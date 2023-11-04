@@ -34,11 +34,11 @@ def get_time_series(df):
         num_true = query.sum()
         if num_true != 1259:
             continue
-        new_df_open = df.loc[query,"close"][:-4]
-        new_df_close = df.loc[query,"open"][:-4]
-        new_df_high = df.loc[query,"high"][:-4]
-        new_df_low = df.loc[query,"low"][:-4]
-        new_df_vol = df.loc[query,"volume"][:-4]
+        new_df_open = df.loc[query,"close"][:-9]
+        new_df_close = df.loc[query,"open"][:-9]
+        new_df_high = df.loc[query,"high"][:-9]
+        new_df_low = df.loc[query,"low"][:-9]
+        new_df_vol = df.loc[query,"volume"][:-9]
         get_chunks(new_df_open,time_series_open)
         get_chunks(new_df_close,time_series_close)
         get_chunks(new_df_high,time_series_high)
@@ -87,7 +87,7 @@ for time_series in all_time_series:
         continue
     final_recurrence_plots += RecurrencePlot(threshold='point', percentage=20).fit_transform(time_series)
 final_recurrence_plots = final_recurrence_plots/5
-
+print(np.shape(final_recurrence_plots))
 # #Plot the 50 recurrence plots
 # fig = plt.figure(figsize=(10, 5))
 # #Plot the 50 recurrence plots
