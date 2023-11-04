@@ -6,7 +6,7 @@ from keras.models import Sequential
 from keras.layers import MaxPooling2D
 from keras.layers import TimeDistributed
 from keras.layers import Flatten
-from data_prepation.py import final_recurrence_plots
+from data_prepation import final_recurrence_plots
 
 def main():
     model = Sequential()
