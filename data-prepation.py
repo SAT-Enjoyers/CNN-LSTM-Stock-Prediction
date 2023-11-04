@@ -9,6 +9,10 @@ def rm_null(df):
     df.loc[pd.isna(df["high"]),"open"] = null_row
     df.loc[pd.isna(df["high"]),"high"] = null_row
     df.loc[pd.isna(df["high"]),"low"] = null_row
+    null_row = df.loc[pd.isna(df["low"]),"close"]
+    df.loc[pd.isna(df["low"]),"open"] = null_row
+    df.loc[pd.isna(df["low"]),"high"] = null_row
+    df.loc[pd.isna(df["low"]),"low"] = null_row
     return df
 def get_time_series(df):
     unique_names = df["Name"].unique()
@@ -67,6 +71,7 @@ print(np.shape(all_time_series))
 final_recurrence_plots = []
 is_empty = True
 for time_series in all_time_series:
+    print('1')
     if is_empty:
         final_recurrence_plots = RecurrencePlot(threshold='point', percentage=20).fit_transform(time_series)
         is_empty = False
