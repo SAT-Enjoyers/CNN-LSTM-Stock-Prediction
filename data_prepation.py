@@ -74,6 +74,12 @@ for time_series in range(len(all_time_series)):
     all_time_series[time_series] = np.array(normalise_all(all_time_series[time_series]))
 all_time_series = np.array(all_time_series)
 print(np.shape(all_time_series))
+labels = []
+for time_series in all_time_series[1]:
+    if time_series[0] > time_series[-1]:
+        labels.append(1)
+    else:
+        labels.append(0)
 
 
 # Get the recurrence plots for all the time series
@@ -87,12 +93,6 @@ for time_series in all_time_series:
         continue
     final_recurrence_plots += RecurrencePlot(threshold='point', percentage=20).fit_transform(time_series)
 final_recurrence_plots = final_recurrence_plots/5
-labels = []
-for time_series in all_time_series[1]:
-    if time_series[0] > time_series[-1]:
-        labels.append(1)
-    else:
-        labels.append(0)
 
 print(np.shape(final_recurrence_plots))
 print(np.shape(labels)) """

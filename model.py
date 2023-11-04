@@ -17,10 +17,10 @@ def main():
     lstm(model)
     
     print('Train...')
-    final_recurrence_plots = dp.final_recurrence_plots
-    final_recurrence_plots = final_recurrence_plots.reshape(58750,5,10)#(470,5)
-    y_train = np.array(dp.labels).reshape(58750)
-    model.fit(final_recurrence_plots, y_train,
+    all_time_series = dp.all_time_series
+    all_time_series = np.reshape(all_time_series,(58750,5,10))
+    y_train = np.array(dp.labels)
+    model.fit(all_time_series, y_train,
             batch_size=64,
             epochs=10,)
 
@@ -28,10 +28,11 @@ def cnn(model):
     sides = 5 # Size of sides
     channels = 1 # Grayscale
     timeStep = 10 # Timestep
-    input_shape = (timeStep, sides, channels)
+    input_shape = (sides, timeStep, channels)
     
     model.add(TimeDistributed(Conv1D(filters=32, kernel_size=1, activation='tanh'), input_shape =input_shape))
     model.add(TimeDistributed(MaxPooling1D(pool_size=1)))
+    model.add(TimeDistributed(Flatten()))
     
     # From here onwards, just CNN
 #Shape should be (batch_size, timesteps, features)
