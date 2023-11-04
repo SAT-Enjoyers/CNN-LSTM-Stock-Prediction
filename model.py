@@ -6,7 +6,7 @@ from keras.models import Sequential
 from keras.layers import MaxPooling2D
 from keras.layers import TimeDistributed
 from keras.layers import Flatten
-
+from data_prepation.py import final_recurrence_plots
 
 def main():
     model = Sequential()
@@ -44,13 +44,11 @@ def lstm(inputTensor, model):
                 metrics=['accuracy'])
 
     print('Train...')
+    y_train = inputTensor[:,:,0]
     model.fit(inputTensor, y_train,
             batch_size=64,
-            epochs=10,
-            validation_data=(x_test, y_test))
-    score, acc = model.evaluate(x_test, y_test, batch_size=64)
-    print('Test score:', score)
-    print('Test accuracy:', acc)
+            epochs=10,)
+    #score, acc = model.evaluate(x_test, y_test, batch_size=64)
     # lstm = tf.keras.layers.LSTM(64)
     # output = lstm(inputTensor)
     # model.add(LSTM(64))
@@ -62,4 +60,3 @@ def lstm(inputTensor, model):
     # Make predictions with the model
     # predictions = model.predict(inputTensor[:3])
     # print(f'Predictions: {predictions}')
-
