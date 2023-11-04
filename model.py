@@ -31,14 +31,19 @@ def main():
     train_series = np.reshape(np.array(train_series),(47000,5,10))
     y_train = np.array(train_labels)
     y_train = y_train.reshape(47000)
-    y_test = np.array(test_labels)
     test_series = np.reshape(test_series,(11750,5,10))
     test_labels = []
     for i in range(len(test_series)-1):
+        if i%1250 == 0:
+            test_labels.append(0)
+            continue
         if test_series[i][1][-1] < test_series[i+1][1][-1]:
             test_labels.append(1)
-        test_labels.append(0)
+        else:
+            test_labels.append(0)
+    test_labels.append(0)
     test_labels = np.array(test_labels)
+    y_test = np.array(test_labels)
     print(np.shape(y_train),np.shape(train_series))
     model.fit(train_series, y_train,
             batch_size=64,
