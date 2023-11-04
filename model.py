@@ -6,6 +6,7 @@ from keras.models import Sequential
 from keras.layers import MaxPooling1D
 from keras.layers import TimeDistributed
 from keras.layers import Flatten
+from keras.layers import Dropout
 
 
 def main():
@@ -50,6 +51,9 @@ def main():
             epochs=10,)
     score,acc = model.evaluate(test_series,y_test)
     print(score,acc)
+    
+    model.save("model.keras")
+    
 def cnn(model):
     sides = 5 # Size of sides
     channels = 1 # Grayscale
@@ -68,7 +72,10 @@ def cnn(model):
 def lstm(model):
 
 
-    model.add(LSTM(64))
+    model.add(LSTM(100))
+    model.add(Dropout(.5))
+    model.add(LSTM(100))
+    model.add(Dropout(.5))
     model.add(Dense(1,activation='sigmoid'))
 
     model.compile(loss='binary_crossentropy',
