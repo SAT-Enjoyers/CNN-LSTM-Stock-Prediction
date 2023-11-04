@@ -4,6 +4,13 @@ import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 from pyts.image import RecurrencePlot
 
+def add_label(df):
+    new_row = np.zeros(len(df))
+    df["label"] = new_row
+    condition = df['close'].shift(1)>df['close'] 
+    df['label'] = np.where(condition, 0, 1)
+    df.loc[df["date"] == "08/02/2013","label"] = 0
+    df.to_csv("datasets/SP_data.csv")
 def rm_null(df):
     null_row = df.loc[pd.isna(df["high"]),"close"]
     df.loc[pd.isna(df["high"]),"open"] = null_row
@@ -59,6 +66,7 @@ def normalise_all(series_l):
     return series_l
 link = "datasets/SP_data.csv"
 df = pd.read_csv(link)
+# df = add_label(df)
 df = rm_null(df)
 all_time_series = get_time_series(df)
 for time_series in range(len(all_time_series)):
