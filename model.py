@@ -1,8 +1,27 @@
 import tensorflow as tf
 import numpy as np
-from keras.models import Sequential
 from keras.layers import Dense, LSTM
+from keras.layers import Conv2D
+from keras.models import Sequential
+from keras.layers import MaxPooling2D
 
+def main():
+    model = Sequential()
+    
+
+def cnn(images, model):
+    sides = 251 # Size of sides
+    channels = 1 # Grayscale
+    input_shape = (32, sides, sides, channels)
+    
+    model.add(Conv2D(filter=32, kernel_size=(3,3), activation='tanh', input_shape =input_shape))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    # From here onwards, just CNN
+    
+    
+def lstm():
+    pass
 
 def lstm(inputs, model):
     data = np.random.random((1000, 28, 1))
