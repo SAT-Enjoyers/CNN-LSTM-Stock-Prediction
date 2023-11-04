@@ -9,11 +9,18 @@ from keras.layers import Flatten
 from data_prepation import final_recurrence_plots
 
 def main():
+    print("h")
     model = Sequential()
     cnn(model)
     #lstm(model)
     print(model.summary)
+    lstm(model)
     
+    print('Train...')
+    y_train = final_recurrence_plots[:,:,0]
+    model.fit(final_recurrence_plots, y_train,
+            batch_size=64,
+            epochs=10,)
 
 def cnn(model):
     sides = 251 # Size of sides
@@ -24,30 +31,22 @@ def cnn(model):
     model.add(TimeDistributed(Conv2D(filters=32, kernel_size=(1,1), activation='tanh', input_shape =input_shape)))
     model.add(TimeDistributed(MaxPooling2D(pool_size=(1, 1))))
     
-    model.add(TimeDistributed(Flatten()))
+    model.add((Flatten()))
     # From here onwards, just CNN
-
-
 #Shape should be (batch_size, timesteps, features)
 #batch_size = number of samples in each batch
 #timesteps = The number of time steps or sequences you want to consider. This could be the length of the time series data you want to feed into the LSTM.
 #features = The number of features extracted from CNN layer
-def lstm(inputTensor, model):
+def lstm(model):
 
 
     model.add(LSTM(64))
-    model.add(Dense(10))
-    model.add(activation = 'sigmoid')
+    model.add(Dense(10,activation='sigmoid'))
 
     model.compile(loss='binary_crossentropy',
                 optimizer='adam',
                 metrics=['accuracy'])
 
-    print('Train...')
-    y_train = inputTensor[:,:,0]
-    model.fit(inputTensor, y_train,
-            batch_size=64,
-            epochs=10,)
     #score, acc = model.evaluate(x_test, y_test, batch_size=64)
     # lstm = tf.keras.layers.LSTM(64)
     # output = lstm(inputTensor)
@@ -60,3 +59,5 @@ def lstm(inputTensor, model):
     # Make predictions with the model
     # predictions = model.predict(inputTensor[:3])
     # print(f'Predictions: {predictions}')
+
+main()
