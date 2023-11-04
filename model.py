@@ -7,6 +7,7 @@ from keras.layers import MaxPooling1D
 from keras.layers import TimeDistributed
 from keras.layers import Flatten
 
+
 def main():
     print("h")
     model = Sequential()
@@ -16,14 +17,29 @@ def main():
     print('Loading...')
     fileName = np.load('data_prep_out.npy')
     labels = np.load('labels.npy')
+    print(np.shape(fileName))
+    file_chuncks = np.split(fileName,5,axis=1)
+    train_series = []
+    train_labels = []
+    label_chuncks = np.split(labels,5)
+    for i in range(4):
+        train_series.append(file_chuncks[i])
+        train_labels.append(label_chuncks[i])
+    test_series = file_chuncks[-1]
+    test_labels = label_chuncks[-1]
     print('Train...')
-    all_time_series = fileName
-    all_time_series = np.reshape(all_time_series,(58750,5,10))
-    y_train = np.array(labels)
-    model.fit(all_time_series, y_train,
+    train_series = np.reshape(np.array(train_series),(47000,5,10))
+    y_train = np.array(train_labels)
+    y_train = y_train.reshape(47000)
+    y_test = np.array(test_labels)
+    test_series = np.reshape(test_series,(11750,5,10))
+    test_labels = np.reshape(np.array(test_labels),11750)
+    print(np.shape(y_train),np.shape(train_series))
+    model.fit(train_series, y_train,
             batch_size=64,
             epochs=10,)
-
+    score,acc = model.evaluate(test_series,y_test)
+    print(score,acc)
 def cnn(model):
     sides = 5 # Size of sides
     channels = 1 # Grayscale
