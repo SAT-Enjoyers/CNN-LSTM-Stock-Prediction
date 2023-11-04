@@ -81,6 +81,8 @@ for time_series in all_time_series[1]:
     else:
         labels.append(0)
 
+np.save('data_prep_out', all_time_series)
+np.save('labels', labels)
 
 # Get the recurrence plots for all the time series
 """ final_recurrence_plots = []

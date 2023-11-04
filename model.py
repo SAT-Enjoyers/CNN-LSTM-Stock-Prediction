@@ -6,20 +6,20 @@ from keras.models import Sequential
 from keras.layers import MaxPooling1D
 from keras.layers import TimeDistributed
 from keras.layers import Flatten
-import data_prepation as dp
 
 def main():
     print("h")
     model = Sequential()
     cnn(model)
-    #lstm(model)
-    print(model.summary)
     lstm(model)
     
+    print('Loading...')
+    fileName = np.load('data_prep_out.npy')
+    labels = np.load('labels.npy')
     print('Train...')
-    all_time_series = dp.all_time_series
+    all_time_series = fileName
     all_time_series = np.reshape(all_time_series,(58750,5,10))
-    y_train = np.array(dp.labels)
+    y_train = np.array(labels)
     model.fit(all_time_series, y_train,
             batch_size=64,
             epochs=10,)
@@ -43,7 +43,7 @@ def lstm(model):
 
 
     model.add(LSTM(64))
-    model.add(Dense(10,activation='sigmoid'))
+    model.add(Dense(1,activation='sigmoid'))
 
     model.compile(loss='binary_crossentropy',
                 optimizer='adam',
