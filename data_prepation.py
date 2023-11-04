@@ -47,7 +47,7 @@ def get_time_series(df):
     return [time_series_open,time_series_close,time_series_high,time_series_low,time_series_vol]
 
 def get_chunks(new_df,time_series):
-    new_df_chunks = np.split(new_df,5)
+    new_df_chunks = np.split(new_df,125)
     for chunk in new_df_chunks:
         time_series.append(chunk)   
     
@@ -77,7 +77,7 @@ print(np.shape(all_time_series))
 
 
 # Get the recurrence plots for all the time series
-final_recurrence_plots = []
+""" final_recurrence_plots = []
 is_empty = True
 for time_series in all_time_series:
     print('1')
@@ -87,7 +87,15 @@ for time_series in all_time_series:
         continue
     final_recurrence_plots += RecurrencePlot(threshold='point', percentage=20).fit_transform(time_series)
 final_recurrence_plots = final_recurrence_plots/5
+labels = []
+for time_series in all_time_series[1]:
+    if time_series[0] > time_series[-1]:
+        labels.append(1)
+    else:
+        labels.append(0)
+
 print(np.shape(final_recurrence_plots))
+print(np.shape(labels)) """
 # #Plot the 50 recurrence plots
 # fig = plt.figure(figsize=(10, 5))
 # #Plot the 50 recurrence plots

@@ -1,9 +1,9 @@
 import tensorflow as tf
 import numpy as np
 from keras.layers import Dense, LSTM
-from keras.layers import Conv2D
+from keras.layers import Conv1D
 from keras.models import Sequential
-from keras.layers import MaxPooling2D
+from keras.layers import MaxPooling1D
 from keras.layers import TimeDistributed
 from keras.layers import Flatten
 import data_prepation as dp
@@ -18,22 +18,21 @@ def main():
     
     print('Train...')
     final_recurrence_plots = dp.final_recurrence_plots
-    final_recurrence_plots = final_recurrence_plots.reshape(470,5,250,250)
-    y_train = np.zeros(shape=(470,5))
+    final_recurrence_plots = final_recurrence_plots.reshape(58750,5,10)#(470,5)
+    y_train = np.array(dp.labels).reshape(58750)
     model.fit(final_recurrence_plots, y_train,
             batch_size=64,
             epochs=10,)
 
 def cnn(model):
-    sides = 250 # Size of sides
+    sides = 5 # Size of sides
     channels = 1 # Grayscale
-    timeStep = 5 # Timestep
-    input_shape = (timeStep, sides, sides, channels)
+    timeStep = 10 # Timestep
+    input_shape = (timeStep, sides, channels)
     
-    model.add(TimeDistributed(Conv2D(filters=32, kernel_size=(1,1), activation='tanh'), input_shape =input_shape))
-    model.add(TimeDistributed(MaxPooling2D(pool_size=(1, 1))))
+    model.add(TimeDistributed(Conv1D(filters=32, kernel_size=1, activation='tanh'), input_shape =input_shape))
+    model.add(TimeDistributed(MaxPooling1D(pool_size=1)))
     
-    model.add(TimeDistributed((Flatten())))
     # From here onwards, just CNN
 #Shape should be (batch_size, timesteps, features)
 #batch_size = number of samples in each batch
@@ -43,7 +42,7 @@ def lstm(model):
 
 
     model.add(LSTM(64))
-    model.add(Dense(5,activation='sigmoid'))
+    model.add(Dense(10,activation='sigmoid'))
 
     model.compile(loss='binary_crossentropy',
                 optimizer='adam',
