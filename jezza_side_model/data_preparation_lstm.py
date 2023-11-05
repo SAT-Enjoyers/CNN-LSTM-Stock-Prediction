@@ -9,9 +9,9 @@ DATASET_FILEPATH = 'scraping/SP_data.csv'
 
 def get_all_time_series(df):
     unique_names = df["name"].unique()
-    ts_open, ts_high, ts_low, ts_close, ts_vol = [], [], [], [], []
+    ts_open, ts_high, ts_low, ts_close, ts_vol = None, None, None, None, None
 
-    for name in unique_names[1:]:
+    for name in unique_names:
         # Get all rows belonging to a stock
         tsRows = df[df['name'] == name]
 
@@ -26,6 +26,12 @@ def get_all_time_series(df):
         df_close = normalise_time_series(tsRows['close'][:adjusted_length])
         df_vol = normalise_time_series(tsRows['volume'][:adjusted_length])
 
+        ts_open = pd.concat([ts_open, df_open]) if ts_open is not None else df_open
+        ts_high = pd.concat([ts_high, df_high]) if ts_high is not None else df_high
+        ts_low = pd.concat([ts_low, df_low]) if ts_low is not None else df_low
+        ts_close = pd.concat([ts_close, df_close]) if ts_close is not None else df_close
+        ts_vol = pd.concat([ts_vol, df_vol]) if ts_vol is not None else df_vol
+        
         # Partition each time series into chunks of 10
         # partitionTimeSeries(df_open, ts_open)
         # partitionTimeSeries(df_high, ts_high)
