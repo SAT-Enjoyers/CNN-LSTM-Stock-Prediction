@@ -17,7 +17,7 @@ def main():
 
     # Load data
     all_series = np.load('data_prep_out.npy')
-    labels = np.load('data_prep_out_labels.npy')
+    all_labels = np.load('data_prep_out_labels.npy')
 
     print("Reshape series")
     print(np.shape(all_series))
@@ -25,15 +25,14 @@ def main():
     print(np.shape(all_series), "\n")
 
     # value of when test inputs start
-    test_index = int(len(all_series) * (4 / 5))
+    test_index = int((len(all_series)*4)//5)
     print("test_index: ", test_index, "\n")
 
     # splits
-    series_chunks = np.split(all_series,5,axis=0)
-    print(np.shape(series_chunks))
-
-    train_series = np.concatenate(series_chunks[:4], axis=0)
-    test_series = series_chunks[-1]
+    train_series = all_series[:test_index]
+    test_series = all_series[:-test_index]
+    train_labels = all_labels[:test_index]
+    test_labels = all_labels[:-test_index]
 
     print("Train shape: ", np.shape(train_series))
     print("Test shape: ", np.shape(test_series))
@@ -44,9 +43,6 @@ def main():
     # reshape for training
     y_train = np.array(train_labels)
     y_train = y_train.reshape(test_index)
-    print(np.shape(test_series))
-    print(len(all_series))
-    print(len(test_series),"h")
     test_series = np.reshape(np.array(test_series),(len(all_series)-test_index,10,5))
     test_labels = np.array(test_labels)
     y_test = np.array(test_labels)
