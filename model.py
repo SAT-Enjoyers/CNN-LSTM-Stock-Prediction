@@ -50,11 +50,9 @@ def main():
     #train model
     model.fit(train_series, y_train,
             batch_size=64,
-            epochs=3,)
+            epochs=10,)
     
     #evaluate model
-    # score,mae = model.evaluate(test_series,y_test)
-    # print(score,mae)
     
     # get resuts
     correct_cnt = 0
@@ -82,6 +80,8 @@ def main():
     #         print(results[i],y_test[i],test_series[i][-1][3])
     # print(accuracy)
     
+    score,mae = model.evaluate(test_series,y_test)
+    print(score,mae)
     
 def cnn(model):
     sides = 5 # Size of sides
@@ -91,7 +91,7 @@ def cnn(model):
     
     # model.add(TimeDistributed(Conv1D(filters=32, kernel_size=1, strides=5, activation='tanh'), input_shape=input_shape))
     # model.add(TimeDistributed(MaxPooling1D(pool_size=1)))
-    model.add(Conv1D(filters=20, kernel_size=1, strides=5, activation='tanh'))
+    model.add(Conv1D(filters=10, kernel_size=1, strides=1, activation='tanh'))
     model.add(MaxPooling1D(pool_size=1))
 # From here onwards, just CNN
 #Shape should be (batch_size, timesteps, features)
@@ -102,9 +102,9 @@ def cnn(model):
 def lstm(model):
 
     model.add(LSTM(units= 40, input_shape = (10,40)))
-    model.add(Dropout(.5))
+    model.add(Dropout(.2))
     model.add(Dense(1,activation='tanh'))
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.00001)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(loss='mean_absolute_error',
                 optimizer=optimizer,
                 metrics=['mae'])
