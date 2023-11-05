@@ -8,7 +8,7 @@ DATASET_FILEPATH = 'scraping/SP_data.csv'
 def get_all_time_series(df):
     unique_names = df["name"].unique()
     ts_open, ts_high, ts_low, ts_close, ts_vol = [], [], [], [], []
-    df_labels = {}
+    df_labels = []
 
     for name in unique_names:
         
@@ -31,17 +31,14 @@ def get_all_time_series(df):
 
         df_close = df_close.reset_index(drop=True)
 
-        df_labels[name] = [df_close[10 * i] for i in range(1, actual_partitions + 1)]
+        df_labels.extend([df_close[10 * i] for i in range(1, actual_partitions + 1)])
 
         # Partition each time series into chunks of 10
         partitionTimeSeries(df_open[:-1], ts_open)
         partitionTimeSeries(df_high[:-1], ts_high)
         partitionTimeSeries(df_low[:-1], ts_low)
         partitionTimeSeries(df_close[:-1], ts_close)
-        partitionTimeSeries(df_vol[:-1], ts_vol)
-
-    print(sum(len(data) for data in df_labels.values()))
-    print(len(ts_close))
+        partitionTimeSeries(df_vol[:-1], ts_vol)   
 
     return ([ts_open, ts_high, ts_low, ts_close, ts_vol], df_labels)
 
