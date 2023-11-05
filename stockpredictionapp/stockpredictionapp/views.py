@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-#from .scrape_stock_data import scrape_stock_data
+import functionality
 
 """ 
 I want my website to be very simple. 
@@ -16,17 +16,17 @@ otherwise we will plot the data (stock close value) for everyday for a year (or 
 def stockInputAPIView(APIView):
     def get(self, request):
         # Retrieve the stock code from the request query parameters
-        stock_code = request.query_params.get('stock_code')
+        stockTag = request.query_params.get('stock_code')
         
-        if not stock_code:
+        if not stockTag:
             return JsonResponse({'error': 'Missing stock_code parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Call your scraping function to get the Excel file or data
-        stock_data = None #scrape_stock_data(stock_code)
+        stockData = functionality.get_one(1, stockTag)
 
-        if stock_data:
+        if stockData:
             # If data is successfully scraped, return it as JSON
-            return JsonResponse(stock_data)
+            return JsonResponse(stockData)
         else:
             # If scraping fails, provide an error message
             return JsonResponse({'error': 'Failed to retrieve stock data'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
