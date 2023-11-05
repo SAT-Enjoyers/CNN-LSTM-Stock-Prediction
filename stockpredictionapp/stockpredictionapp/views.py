@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import json
-import functionality
+from . import functionality
 
 
 """ 
@@ -24,7 +24,7 @@ class StockInputAPIView(APIView):
             return Response({'error': 'Missing stock_code parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Call your scraping function to get the data
-        stock_data = json.stringify(functionality.get_one(1, stockTag))
+        stock_data = json.dumps(functionality.get_one(1, stockTag))
 
         if stock_data:
             # If data is successfully retrieved, return it as JSON

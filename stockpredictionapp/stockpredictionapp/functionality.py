@@ -13,7 +13,7 @@ def getTimestamp(date):
     timestamp = 0
 
     if type(date) == int:
-        timestamp = dt.timestamp(dt.now() - relativedelta(years=date))
+        timestamp = dt.timestamp(dt.now() - relativedelta(months=date))
     else:
         timestamp = dt.strptime(date, '%d/%m/%Y').timestamp()
 
@@ -53,7 +53,5 @@ def get_one(yearAgo, stockTag):
     # Convert format of dates
     df['date'] = df['date'].apply(changeDate)
     
-    output = df.values.tolist()
+    output = [df['date'].tolist(), df['close'].tolist(), df['volume'].tolist()]
     return output
-
-print(get_one(1, 'A'))

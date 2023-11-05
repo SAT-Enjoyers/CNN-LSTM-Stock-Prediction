@@ -16,9 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from stockpredictionapp.views import stockInputAPIView
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('get-stock-data/', stockInputAPIView.as_view(), name= 'get_stock_data'),
+    path('get-stock-data/', views.StockInputAPIView.as_view(), name= 'get_stock_data'),
 ]
