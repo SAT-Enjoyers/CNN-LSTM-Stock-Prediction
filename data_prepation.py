@@ -5,73 +5,54 @@ import matplotlib.pyplot as plt
 from pyts.image import RecurrencePlot
 from mpl_toolkits.axes_grid1 import ImageGrid
 
-def add_label(df):
-    new_row = np.zeros(len(df))
-    df["label"] = new_row
-    condition = df['close'].shift(1)>df['close'] 
-    df['label'] = np.where(condition, 0, 1)
-    df.loc[df["date"] == "08/02/2013","label"] = 0
-    df.to_csv("datasets/SP_data.csv")
-def rm_null(df):
-    null_row = df.loc[pd.isna(df["high"]),"close"]
-    df.loc[pd.isna(df["high"]),"open"] = null_row
-    df.loc[pd.isna(df["high"]),"high"] = null_row
-    df.loc[pd.isna(df["high"]),"low"] = null_row
-    null_row = df.loc[pd.isna(df["low"]),"close"]
-    df.loc[pd.isna(df["low"]),"open"] = null_row
-    df.loc[pd.isna(df["low"]),"high"] = null_row
-    df.loc[pd.isna(df["low"]),"low"] = null_row
-    return df
-def get_time_series(df):
-    unique_names = df["Name"].unique()
-    time_series_open = []
-    time_series_close = []
-    time_series_high = []
-    time_series_low = []
-    time_series_vol = []
+DATASET_FILEPATH = 'scraping/SP_data.csv'
+
+def get_all_time_series(df):
+    unique_names = df["name"].unique()
+    ts_open, ts_high, ts_low, ts_close, ts_vol = [], [], [], [], []
+
     for name in unique_names:
-        query = (df["Name"] == name)
-        num_true = query.sum()
-        if num_true != 1259:
-            continue
-        new_df_open = df.loc[query,"close"][:-9]
-        new_df_close = df.loc[query,"open"][:-9]
-        new_df_high = df.loc[query,"high"][:-9]
-        new_df_low = df.loc[query,"low"][:-9]
-        new_df_vol = df.loc[query,"volume"][:-9]
-        get_chunks(new_df_open,time_series_open)
-        get_chunks(new_df_close,time_series_close)
-        get_chunks(new_df_high,time_series_high)
-        get_chunks(new_df_low,time_series_low)
-        get_chunks(new_df_vol,time_series_vol)
-    return ([time_series_open,time_series_high,time_series_low,time_series_vol], [time_series_close])
+        # Get all rows belonging to a stock
+        tsRows = df[df['name'] == name]
 
-def get_chunks(new_df,time_series):
-    new_df_chunks = np.split(new_df,125)
-    for chunk in new_df_chunks:
-        time_series.append(chunk)   
-    
-# (input - average) / standard deviation
-def normalise(row,average,standard_deviation):
-    return (row-average)/standard_deviation
+        # Ensure the number of rows is a multiple of 10
+        ts_length = tsRows.shape[0]
+        adjusted_length = ts_length - ts_length % 10
 
-def normalise_series(series):
-    std = np.std(series)
-    avg = series.sum()/len(series)
-    normalised = normalise(series,std,avg)
-    return normalised
+        # Extract time series from rows
+        df_open = normalise_time_series(tsRows['open'][:adjusted_length])
+        df_high = normalise_time_series(tsRows['high'][:adjusted_length])
+        df_low = normalise_time_series(tsRows['low'][:adjusted_length])
+        df_close = normalise_time_series(tsRows['close'][:adjusted_length])
+        df_vol = normalise_time_series(tsRows['volume'][:adjusted_length])
 
-def normalise_all(series_l):
-    for series in range(len(series_l)):
-        series_l[series] = normalise_series(series_l[series])
-    return series_l
-link = "datasets/SP_data.csv"
-df = pd.read_csv(link)
-# df = add_label(df)
-df = rm_null(df)
-all_time_series = get_time_series(df)
-for time_series in range(len(all_time_series)):
-    all_time_series[time_series] = np.array(normalise_all(all_time_series[time_series]))
+        # Partition each time series into chunks of 10
+        partitionTimeSeries(df_open, ts_open)
+        partitionTimeSeries(df_high, ts_high)
+        partitionTimeSeries(df_low, ts_low)
+        partitionTimeSeries(df_close, ts_close)
+        partitionTimeSeries(df_vol, ts_vol)
+
+    return [ts_open, ts_high, ts_low, ts_close, ts_vol]
+
+# Receives an un-normalised unsplit time series as input
+# (datapoint - average) / standard deviation
+def normalise_time_series(time_series):
+    s_d = np.std(time_series)
+    avg = time_series.sum() / len(time_series)
+    return (time_series - avg) / s_d
+
+# Partitions a normalised time series into partitions/chunks of 10
+def partitionTimeSeries(ts_unsplit, ts_split):
+    # Split the time series into partitions/chunks of size 10
+    partitions = np.split(ts_unsplit, ts_unsplit.shape[0] / 10)
+    for partition in partitions:
+        ts_split.append(partition)
+
+
+df = pd.read_csv(DATASET_FILEPATH)
+all_time_series = get_all_time_series(df)
+
 all_time_series = np.array(all_time_series)
 print(np.shape(all_time_series))
 labels = []
