@@ -16,8 +16,13 @@ def getTimestamp(strDate: str) -> int:
     dayInUnix = 86400
     timestamp = 0
 
+<<<<<<< Updated upstream
     if strDate == 'today':
         timestamp = dt.timestamp(dt.now())
+=======
+    if type(date) == int:
+        timestamp = dt.timestamp(dt.now() - relativedelta(months=date))
+>>>>>>> Stashed changes
     else:
         timestamp = dt.strptime(strDate, '%d/%m/%Y').timestamp()
 
@@ -68,5 +73,37 @@ for idx, stock_tag in enumerate(getAllTags()[:numStocks]):
 # Convert format of dates
 df['date'] = df['date'].apply(changeDate)   
 
+<<<<<<< Updated upstream
 # Output scraped data to csv file
 df.to_csv(OUT_FILEPATH, index=False)
+=======
+        # URL setup & GET request
+        my_url = "https://query1.finance.yahoo.com/v7/finance/download/{}?period1={}&period2={}&interval=1d&events=history".format(stock_tag, startDate, endDate)
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+        r = rq.get(url=my_url, headers=headers)
+
+        if r.status_code == 200:
+            # Get raw data from request
+            data = r.text
+            data = data.split("\n")
+            data = [day.split(",") for day in data][1:]
+
+            
+            # Convert raw data to DataFrame
+            temp_df = pd.DataFrame(data, columns =['date', 'open', 'high', 'low', 'close', 'adj_close', 'volume'], dtype = str)
+            
+            # Drop adjusted close column and add stock tag to the rows
+            temp_df = temp_df.drop(['adj_close'], axis=1)
+            temp_df['name'] = stock_tag
+
+            # Add labels for closing price
+            add_label(temp_df)
+
+            # Add rows from stock to the main DataFrame
+            df = pd.concat([df, temp_df], ignore_index=True)
+    # Convert format of dates
+    df['date'] = df['date'].apply(changeDate)
+    df.to_csv(OUT_FILEPATH_ALL, index=False)
+
+get_one(df, 12, "AAPL")
+>>>>>>> Stashed changes
