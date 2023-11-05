@@ -71,8 +71,14 @@ all_time_series = np.load("carlos_side_model/data_prep_out.npy")
 final_recurrence_plots = []
 is_empty = True
 for time_series in all_time_series:
-    final_recurrence_plots.append(RecurrencePlot(threshold='point', percentage=20).fit_transform(time_series))
+    if is_empty:
+        final_recurrence_plots = RecurrencePlot(threshold='point', percentage=20).fit_transform(time_series)
+        is_empty = False
+    else:
 
+        final_recurrence_plots+=RecurrencePlot(threshold='point', percentage=20).fit_transform(time_series)
+final_recurrence_plots = final_recurrence_plots/5
+np.save('carlos_side_model/data_prep_out_rp', final_recurrence_plots)
 # print(np.shape(final_recurrence_plots))
 # print(np.shape(labels))
 # #Plot the 50 recurrence plots
