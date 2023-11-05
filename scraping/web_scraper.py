@@ -6,10 +6,10 @@ import numpy as np
 
 # GLOBAL VARIABLES
 FILEPATH = 'scraping/'
-OUT_FILEPATH = FILEPATH + 'SP_data_full.csv'
-startDate = '04/03/1957'
+OUT_FILEPATH = FILEPATH + 'SP_data_test.csv'
+startDate = '04/03/2022'
 endDate = 'today' # actual date or 'today'
-numStocks = 503 # current max = 503
+numStocks = 10 # current max = 503
 
 # String to unix timestamp
 def getTimestamp(strDate: str) -> int:
@@ -32,14 +32,6 @@ def getAllTags():
 def changeDate(date:str):
     dateElems = date.split("-")
     return dateElems[2] + "/" + dateElems[1] + "/" + dateElems[0]
-
-# Label if closing price increased
-def add_label(df):
-    new_row = np.zeros(len(df))
-    df["label"] = new_row
-    condition = df['close'].shift(1) > df['close'] 
-    df['label'] = np.where(condition, 0, 1)
-    df.at[0, 'label'] = 0
 
 # Initial DataFrame
 df = pd.DataFrame([], columns=['date', 'open', 'high', 'low', 'close', 'volume'], dtype = str)
@@ -69,9 +61,6 @@ for idx, stock_tag in enumerate(getAllTags()[:numStocks]):
         # Drop adjusted close column and add stock tag to the rows
         temp_df = temp_df.drop(['adj_close'], axis=1)
         temp_df['name'] = stock_tag
-
-        # Add labels for closing price
-        add_label(temp_df)
 
         # Add rows from stock to the main DataFrame
         df = pd.concat([df, temp_df], ignore_index=True)
