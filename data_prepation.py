@@ -2,15 +2,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
 import matplotlib.pyplot as plt
-from pyts.image import RecurrencePlot
-from mpl_toolkits.axes_grid1 import ImageGrid
 
-DATASET_FILEPATH = 'scraping/SP_data.csv'
+DATASET_FILEPATH = 'scraping/SP_data_test.csv'
 
 def get_all_time_series(df):
     unique_names = df["name"].unique()
     ts_open, ts_high, ts_low, ts_close, ts_vol = [], [], [], [], []
-
+    
     for name in unique_names:
         # Get all rows belonging to a stock
         tsRows = df[df['name'] == name]
@@ -55,44 +53,5 @@ all_time_series = get_all_time_series(df)
 
 all_time_series = np.array(all_time_series)
 print(np.shape(all_time_series))
-labels = []
-for time_series in all_time_series[1]:
-    if time_series[0] > time_series[-1]:
-        labels.append(1)
-    else:
-        labels.append(0)
 
 np.save('data_prep_out', all_time_series)
-np.save('labels', labels)
-
-# Get the recurrence plots for all the time series
-""" final_recurrence_plots = []
-is_empty = True
-for time_series in all_time_series:
-    print('1')
-    if is_empty:
-        final_recurrence_plots = RecurrencePlot(threshold='point', percentage=20).fit_transform(time_series)
-        is_empty = False
-        continue
-    final_recurrence_plots += RecurrencePlot(threshold='point', percentage=20).fit_transform(time_series)
-final_recurrence_plots = final_recurrence_plots/5
-
-print(np.shape(final_recurrence_plots))
-print(np.shape(labels)) """
-# #Plot the 50 recurrence plots
-# fig = plt.figure(figsize=(10, 5))
-# #Plot the 50 recurrence plots
-# fig = plt.figure(figsize=(10, 5))
-
-# grid = ImageGrid(fig, 111, nrows_ncols=(5, 10), axes_pad=0.1, share_all=True)
-# for i, ax in enumerate(grid):
-#     ax.imshow(final_recurrence_plots[i], origin='lower')
-# grid[0].get_yaxis().set_ticks([])
-# grid[0].get_xaxis().set_ticks([])
-
-# fig.suptitle(
-#     "Recurrence plots for the 50 time series in the 'GunPoint' dataset",
-#     y=0.92
-# )
-
-# plt.show()
