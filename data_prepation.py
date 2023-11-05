@@ -2,22 +2,25 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
 import matplotlib.pyplot as plt
-from pyts.image import RecurrencePlot
-from mpl_toolkits.axes_grid1 import ImageGrid
 
 DATASET_FILEPATH = 'scraping/SP_data.csv'
 
 def get_all_time_series(df):
     unique_names = df["name"].unique()
     ts_open, ts_high, ts_low, ts_close, ts_vol = [], [], [], [], []
+    df_labels = {}
 
     for name in unique_names:
+        
         # Get all rows belonging to a stock
         tsRows = df[df['name'] == name]
 
         # Ensure the number of rows is a multiple of 10
         ts_length = tsRows.shape[0]
-        adjusted_length = ts_length - ts_length % 10
+
+        actual_partitions = (ts_length - 1) // 10
+        adjusted_length = actual_partitions * 10 + 1
+
 
         # Extract time series from rows
         df_open = normalise_time_series(tsRows['open'][:adjusted_length])
@@ -26,14 +29,21 @@ def get_all_time_series(df):
         df_close = normalise_time_series(tsRows['close'][:adjusted_length])
         df_vol = normalise_time_series(tsRows['volume'][:adjusted_length])
 
-        # Partition each time series into chunks of 10
-        partitionTimeSeries(df_open, ts_open)
-        partitionTimeSeries(df_high, ts_high)
-        partitionTimeSeries(df_low, ts_low)
-        partitionTimeSeries(df_close, ts_close)
-        partitionTimeSeries(df_vol, ts_vol)
+        df_close = df_close.reset_index(drop=True)
 
-    return [ts_open, ts_high, ts_low, ts_close, ts_vol]
+        df_labels[name] = [df_close[10 * i] for i in range(1, actual_partitions + 1)]
+
+        # Partition each time series into chunks of 10
+        partitionTimeSeries(df_open[:-1], ts_open)
+        partitionTimeSeries(df_high[:-1], ts_high)
+        partitionTimeSeries(df_low[:-1], ts_low)
+        partitionTimeSeries(df_close[:-1], ts_close)
+        partitionTimeSeries(df_vol[:-1], ts_vol)
+
+    print(sum(len(data) for data in df_labels.values()))
+    print(len(ts_close))
+
+    return ([ts_open, ts_high, ts_low, ts_close, ts_vol], df_labels)
 
 # Receives an un-normalised unsplit time series as input
 # (datapoint - average) / standard deviation
@@ -51,48 +61,10 @@ def partitionTimeSeries(ts_unsplit, ts_split):
 
 
 df = pd.read_csv(DATASET_FILEPATH)
-all_time_series = get_all_time_series(df)
+all_time_series, labels = get_all_time_series(df)
 
 all_time_series = np.array(all_time_series)
 print(np.shape(all_time_series))
-labels = []
-for time_series in all_time_series[1]:
-    if time_series[0] > time_series[-1]:
-        labels.append(1)
-    else:
-        labels.append(0)
 
 np.save('data_prep_out', all_time_series)
-np.save('labels', labels)
-
-# Get the recurrence plots for all the time series
-""" final_recurrence_plots = []
-is_empty = True
-for time_series in all_time_series:
-    print('1')
-    if is_empty:
-        final_recurrence_plots = RecurrencePlot(threshold='point', percentage=20).fit_transform(time_series)
-        is_empty = False
-        continue
-    final_recurrence_plots += RecurrencePlot(threshold='point', percentage=20).fit_transform(time_series)
-final_recurrence_plots = final_recurrence_plots/5
-
-print(np.shape(final_recurrence_plots))
-print(np.shape(labels)) """
-# #Plot the 50 recurrence plots
-# fig = plt.figure(figsize=(10, 5))
-# #Plot the 50 recurrence plots
-# fig = plt.figure(figsize=(10, 5))
-
-# grid = ImageGrid(fig, 111, nrows_ncols=(5, 10), axes_pad=0.1, share_all=True)
-# for i, ax in enumerate(grid):
-#     ax.imshow(final_recurrence_plots[i], origin='lower')
-# grid[0].get_yaxis().set_ticks([])
-# grid[0].get_xaxis().set_ticks([])
-
-# fig.suptitle(
-#     "Recurrence plots for the 50 time series in the 'GunPoint' dataset",
-#     y=0.92
-# )
-
-# plt.show()
+np.save('data_prep_out_labels', labels)
