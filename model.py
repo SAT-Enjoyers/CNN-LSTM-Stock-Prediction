@@ -72,9 +72,7 @@ def cnn(model):
 def lstm(model):
 
 
-    model.add(LSTM(100))
-    model.add(Dropout(.5))
-    model.add(LSTM(100))
+    model.add(LSTM(64))
     model.add(Dropout(.5))
     model.add(Dense(1,activation='sigmoid'))
 
