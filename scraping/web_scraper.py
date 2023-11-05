@@ -7,7 +7,8 @@ from dateutil.relativedelta import relativedelta
 
 # GLOBAL VARIABLES
 FILEPATH = 'scraping/'
-OUT_FILEPATH = FILEPATH + 'SP_data.csv'
+OUT_FILEPATH_ALL = FILEPATH + 'SP_data_all.csv'
+OUT_FILEPATH_SINGLE = FILEPATH + 'SP_data_single.csv'
 endDate = 0 # actual date or 'today'
 numStocks = 503 # current max = 503
 
@@ -78,7 +79,7 @@ def get_one(df, yearAgo, stockTag):
         
     # Convert format of dates
     df['date'] = df['date'].apply(changeDate)
-    return df
+    df.to_csv(OUT_FILEPATH_SINGLE, index=False)
 
 def get_all(df, startDate):
     startDate = getTimestamp(startDate)
@@ -113,10 +114,4 @@ def get_all(df, startDate):
             df = pd.concat([df, temp_df], ignore_index=True)
     # Convert format of dates
     df['date'] = df['date'].apply(changeDate)
-    return df
-    
-df = get_one(df, yearAgo=1, stockTag='AAL')
-#df = get_all(df, startDate=1)
-
-# Output scraped data to csv file
-df.to_csv(OUT_FILEPATH, index=False)
+    df.to_csv(OUT_FILEPATH_ALL, index=False)
