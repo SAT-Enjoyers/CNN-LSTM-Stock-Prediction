@@ -3,23 +3,23 @@ from datetime import datetime as dt
 import requests as rq
 import pandas as pd
 import numpy as np
+from dateutil.relativedelta import relativedelta
 
 # GLOBAL VARIABLES
 FILEPATH = 'scraping/'
-OUT_FILEPATH = FILEPATH + 'SP_data_full.csv'
-startDate = '04/03/1957'
-endDate = 'today' # actual date or 'today'
+OUT_FILEPATH = FILEPATH + 'SP_data.csv'
+endDate = 0 # actual date or 'today'
 numStocks = 503 # current max = 503
 
 # String to unix timestamp
-def getTimestamp(strDate: str) -> int:
+def getTimestamp(date):
     dayInUnix = 86400
     timestamp = 0
 
-    if strDate == 'today':
-        timestamp = dt.timestamp(dt.now())
+    if type(date) == int:
+        timestamp = dt.timestamp(dt.now() - relativedelta(years=date))
     else:
-        timestamp = dt.strptime(strDate, '%d/%m/%Y').timestamp()
+        timestamp = dt.strptime(date, '%d/%m/%Y').timestamp()
 
     return int(timestamp - (timestamp % dayInUnix))
 
@@ -44,40 +44,79 @@ def add_label(df):
 # Initial DataFrame
 df = pd.DataFrame([], columns=['date', 'open', 'high', 'low', 'close', 'volume'], dtype = str)
 
-startDate = getTimestamp(startDate)
 endDate = getTimestamp(endDate)
 
-# Scrape all the stocks
-for idx, stock_tag in enumerate(getAllTags()[:numStocks]):
-    print(idx + 1, ':', stock_tag)
+def get_one(df, yearAgo, stockTag):
+    startDate = getTimestamp(yearAgo)
 
+    print(stockTag)
+    
     # URL setup & GET request
-    my_url = "https://query1.finance.yahoo.com/v7/finance/download/{}?period1={}&period2={}&interval=1d&events=history".format(stock_tag, startDate, endDate)
+    my_url = f"https://query1.finance.yahoo.com/v7/finance/download/{stockTag}?period1={startDate}&period2={endDate}&interval=1d&events=history"
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
     r = rq.get(url=my_url, headers=headers)
+    
 
     if r.status_code == 200:
         # Get raw data from request
         data = r.text
         data = data.split("\n")
         data = [day.split(",") for day in data][1:]
-
         
         # Convert raw data to DataFrame
         temp_df = pd.DataFrame(data, columns =['date', 'open', 'high', 'low', 'close', 'adj_close', 'volume'], dtype = str)
         
         # Drop adjusted close column and add stock tag to the rows
         temp_df = temp_df.drop(['adj_close'], axis=1)
-        temp_df['name'] = stock_tag
+        temp_df['name'] = stockTag
 
         # Add labels for closing price
         add_label(temp_df)
 
         # Add rows from stock to the main DataFrame
         df = pd.concat([df, temp_df], ignore_index=True)
+        
+    # Convert format of dates
+    df['date'] = df['date'].apply(changeDate)
+    return df
+
+def get_all(df, startDate):
+    startDate = getTimestamp(startDate)
     
-# Convert format of dates
-df['date'] = df['date'].apply(changeDate)   
+    # Scrape all the stocks
+    for idx, stock_tag in enumerate(getAllTags()[:numStocks]):
+        print(idx + 1, ':', stock_tag)
+
+        # URL setup & GET request
+        my_url = "https://query1.finance.yahoo.com/v7/finance/download/{}?period1={}&period2={}&interval=1d&events=history".format(stock_tag, startDate, endDate)
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+        r = rq.get(url=my_url, headers=headers)
+
+        if r.status_code == 200:
+            # Get raw data from request
+            data = r.text
+            data = data.split("\n")
+            data = [day.split(",") for day in data][1:]
+
+            
+            # Convert raw data to DataFrame
+            temp_df = pd.DataFrame(data, columns =['date', 'open', 'high', 'low', 'close', 'adj_close', 'volume'], dtype = str)
+            
+            # Drop adjusted close column and add stock tag to the rows
+            temp_df = temp_df.drop(['adj_close'], axis=1)
+            temp_df['name'] = stock_tag
+
+            # Add labels for closing price
+            add_label(temp_df)
+
+            # Add rows from stock to the main DataFrame
+            df = pd.concat([df, temp_df], ignore_index=True)
+    # Convert format of dates
+    df['date'] = df['date'].apply(changeDate)
+    return df
+    
+df = get_one(df, yearAgo=1, stockTag='AAL')
+#df = get_all(df, startDate=1)
 
 # Output scraped data to csv file
 df.to_csv(OUT_FILEPATH, index=False)
