@@ -12,46 +12,34 @@ from keras.layers import Dropout
 def main():
     
     model = Sequential()
-
     cnn(model)
     lstm(model)
-    print('Loading...')
 
-    # load data
+    # Load data
     all_series = np.load('data_prep_out.npy')
-    # reshape to add labels
+    labels = np.load('data_prep_out_labels.npy')
+
+    print("Reshape series")
     print(np.shape(all_series))
     all_series = np.reshape(all_series,(len(all_series[0]),10,5))
+    print(np.shape(all_series), "\n")
 
     # value of when test inputs start
-    test_index = (len(all_series)*4)//5
-    
-    print(test_index)
-
-    # set random seed for consistent results
-    np.random.seed(0)  
-    # np.random.shuffle(fileName)
+    test_index = int(len(all_series) * (4 / 5))
+    print("test_index: ", test_index, "\n")
 
     # splits
-    print(len(all_series))
-    print(np.shape(all_series))
     series_chunks = np.split(all_series,5,axis=0)
-    print(len(series_chunks[0]))
-    train_series = []
+    print(np.shape(series_chunks))
 
-    for i in range(4):
-        train_series.append(series_chunks[i])
+    train_series = np.concatenate(series_chunks[:4], axis=0)
     test_series = series_chunks[-1]
-    print(len(test_series))
-    print(np.shape(train_series),"h")
 
-    train_series = np.reshape(np.array(train_series),(test_index,10,5))
-    print(np.shape(train_series))
+    print("Train shape: ", np.shape(train_series))
+    print("Test shape: ", np.shape(test_series))
 
-    #create labels
-    print(np.shape(all_series))
-    print(all_series[0][-1])
-    test_labels,train_labels = create_all_labels(all_series,test_index)
+    #create labels  
+    test_labels, train_labels = create_all_labels(all_series,test_index)
 
     # reshape for training
     y_train = np.array(train_labels)
