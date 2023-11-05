@@ -6,3 +6,11 @@
     margin-left: clamp((var(--screen-width) * 0.15), var(--min-margin), var(--max-margin));
     margin-right: clamp((var(--screen-width) * 0.15), var(--min-margin), var(--max-margin));
 }
+header{
+    text-align: right;
+}
+h1{
+    font-size: 36px;
+    margin-bottom: -48px;
+    margin-right: 80px;
+}
