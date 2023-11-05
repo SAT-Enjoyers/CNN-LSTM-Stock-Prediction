@@ -51,8 +51,7 @@ def main():
     model.fit(train_series, y_train,
             batch_size=64,
             epochs=10,)
-    
-    #evaluate model
+
     
     # get resuts
     correct_cnt = 0
@@ -73,13 +72,12 @@ def main():
             correct_cnt +=1
         elif (y_test[index] > test_series[index][-1][3]) and (result[0] > test_series[index][-1][3]):
             correct_cnt +=1
-        accuracy = correct_cnt/len(results)
+    accuracy = correct_cnt/len(results)
     print(accuracy)
     # for i in range(len(results)):
     #     if test_series[i][-1][3]:
     #         print(results[i],y_test[i],test_series[i][-1][3])
     # print(accuracy)
-    
     score,mae = model.evaluate(test_series,y_test)
     print(score,mae)
     
@@ -91,7 +89,7 @@ def cnn(model):
     
     # model.add(TimeDistributed(Conv1D(filters=32, kernel_size=1, strides=5, activation='tanh'), input_shape=input_shape))
     # model.add(TimeDistributed(MaxPooling1D(pool_size=1)))
-    model.add(Conv1D(filters=10, kernel_size=1, strides=1, activation='tanh'))
+    model.add(Conv1D(filters=32, kernel_size=1, strides=5, activation='tanh'))
     model.add(MaxPooling1D(pool_size=1))
 # From here onwards, just CNN
 #Shape should be (batch_size, timesteps, features)
@@ -101,8 +99,8 @@ def cnn(model):
 
 def lstm(model):
 
-    model.add(LSTM(units= 40, input_shape = (10,40)))
-    model.add(Dropout(.2))
+    model.add(LSTM(units= 64, input_shape = (10,32)))
+    model.add(Dropout(.1))
     model.add(Dense(1,activation='tanh'))
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(loss='mean_absolute_error',
