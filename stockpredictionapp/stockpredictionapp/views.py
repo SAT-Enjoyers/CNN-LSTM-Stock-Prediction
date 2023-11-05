@@ -3,7 +3,9 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+import json
 import functionality
+
 
 """ 
 I want my website to be very simple. 
@@ -13,20 +15,20 @@ If unsuccessful, an error is returned,
 otherwise we will plot the data (stock close value) for everyday for a year (or shorter if the stock has not been up for a year).
 """
 
-def stockInputAPIView(APIView):
+class StockInputAPIView(APIView):
     def get(self, request):
         # Retrieve the stock code from the request query parameters
         stockTag = request.query_params.get('stock_code')
         
         if not stockTag:
-            return JsonResponse({'error': 'Missing stock_code parameter'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Missing stock_code parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Call your scraping function to get the Excel file or data
-        stockData = functionality.get_one(1, stockTag)
+        # Call your scraping function to get the data
+        stock_data = json.stringify(functionality.get_one(1, stockTag))
 
-        if stockData:
-            # If data is successfully scraped, return it as JSON
-            return JsonResponse(stockData)
+        if stock_data:
+            # If data is successfully retrieved, return it as JSON
+            return Response(stock_data)
         else:
-            # If scraping fails, provide an error message
-            return JsonResponse({'error': 'Failed to retrieve stock data'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # If the retrieval fails, provide an error message
+            return Response({'error': 'Failed to retrieve stock data'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

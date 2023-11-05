@@ -49,9 +49,11 @@ def get_one(yearAgo, stockTag):
         
         # Drop adjusted close column and add stock tag to the rows
         df = df.drop(['adj_close', 'open', 'high', 'low'], axis=1)
-
-        output = df.values.tolist()
-        return output
         
     # Convert format of dates
     df['date'] = df['date'].apply(changeDate)
+    
+    output = df.values.tolist()
+    return output
+
+print(get_one(1, 'A'))
